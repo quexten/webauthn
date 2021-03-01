@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"net/http"
 
-	"github.com/duo-labs/webauthn/protocol"
+	"github.com/quexten/webauthn/protocol"
 )
 
 // BEGIN REGISTRATION
@@ -14,7 +14,6 @@ import (
 
 // LoginOption is used to provide parameters that modify the default Credential Assertion Payload that is sent to the user.
 type LoginOption func(*protocol.PublicKeyCredentialRequestOptions)
-
 
 func (webauthn *WebAuthn) BeginLoginWithoutUser(opts ...LoginOption) (*protocol.CredentialAssertion, *SessionData, error) {
 	challenge, err := protocol.CreateChallenge()
@@ -43,7 +42,6 @@ func (webauthn *WebAuthn) BeginLoginWithoutUser(opts ...LoginOption) (*protocol.
 
 	return &response, &newSessionData, nil
 }
-
 
 // Creates the CredentialAssertion data payload that should be sent to the user agent for beginning the
 // login/assertion process. The format of this data can be seen in §5.5 of the WebAuthn specification
