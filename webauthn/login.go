@@ -15,6 +15,36 @@ import (
 // LoginOption is used to provide parameters that modify the default Credential Assertion Payload that is sent to the user.
 type LoginOption func(*protocol.PublicKeyCredentialRequestOptions)
 
+
+func (webauthn *WebAuthn) BeginLoginWithoutUser(opts ...LoginOption) (*protocol.CredentialAssertion, *SessionData, error) {
+	challenge, err := protocol.CreateChallenge()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	requestOptions := protocol.PublicKeyCredentialRequestOptions{
+		Challenge:        challenge,
+		Timeout:          webauthn.Config.Timeout,
+		RelyingPartyID:   webauthn.Config.RPID,
+		UserVerification: webauthn.Config.AuthenticatorSelection.UserVerification,
+	}
+
+	for _, setter := range opts {
+		setter(&requestOptions)
+	}
+
+	newSessionData := SessionData{
+		Challenge:            base64.RawURLEncoding.EncodeToString(challenge),
+		AllowedCredentialIDs: requestOptions.GetAllowedCredentialIDs(),
+		UserVerification:     requestOptions.UserVerification,
+	}
+
+	response := protocol.CredentialAssertion{requestOptions}
+
+	return &response, &newSessionData, nil
+}
+
+
 // Creates the CredentialAssertion data payload that should be sent to the user agent for beginning the
 // login/assertion process. The format of this data can be seen in §5.5 of the WebAuthn specification
 // (https://www.w3.org/TR/webauthn/#assertion-options). These default values can be amended by providing
